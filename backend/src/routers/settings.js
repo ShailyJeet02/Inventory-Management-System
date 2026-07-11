@@ -1,10 +1,17 @@
 const express = require("express");
 const router = express.Router();
 
-// Make sure this matches your filename: settingController.js not settingsController.js
-const { getSettings, updateSettings } = require("../controllers/settingController");
+const authMiddleware = require("../middleware/authMiddleware");
 
-router.get("/", getSettings);
-router.put("/", updateSettings);
+const {
+  getSettings,
+  updateSettings,
+} = require("../controllers/settingController");
+
+// Get Logged In User Settings
+router.get("/", authMiddleware, getSettings);
+
+// Update Logged In User Settings
+router.put("/", authMiddleware, updateSettings);
 
 module.exports = router;

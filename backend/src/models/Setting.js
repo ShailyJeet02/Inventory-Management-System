@@ -66,4 +66,4 @@ createdAt:{
 });
 
 
-module.exports = mongoose.model("Settings",settingsSchema);
+module.exports = mongoose.model("Setting",settingsSchema);
