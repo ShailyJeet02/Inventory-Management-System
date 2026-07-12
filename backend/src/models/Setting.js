@@ -1,69 +1,104 @@
 const mongoose = require("mongoose");
 
+const settingSchema = new mongoose.Schema({
 
-const settingsSchema = new mongoose.Schema({
+  userId: {
+    type: String,
+    required: true
+  },
 
-userId:{
-    type:mongoose.Schema.Types.ObjectId,
-    ref:"User",
-    required:true
-},
+  // Inventory Settings
+  lowStock: {
+    type: Boolean,
+    default: true
+  },
 
+  autoStockUpdate: {
+    type: Boolean,
+    default: true
+  },
 
-companyName:{
-    type:String,
-    default:"InventoryPro"
-},
+  barcodeEnabled: {
+    type: Boolean,
+    default: false
+  },
 
+  allowNegativeStock: {
+    type: Boolean,
+    default: false
+  },
 
-email:{
-    type:String
-},
+  // User Permissions
+  roleManagement: {
+    type: Boolean,
+    default: true
+  },
 
+  allowStaffCreate: {
+    type: Boolean,
+    default: true
+  },
 
-phone:{
-    type:String
-},
+  allowStaffEdit: {
+    type: Boolean,
+    default: true
+  },
 
+  allowStaffDelete: {
+    type: Boolean,
+    default: false
+  },
 
-address:{
-    type:String
-},
+  // Security
+  twoFactorAuth: {
+    type: Boolean,
+    default: false
+  },
 
+  passwordExpiry: {
+    type: Boolean,
+    default: false
+  },
 
+  sessionTimeout: {
+    type: Boolean,
+    default: true
+  },
 
-lowStock:{
-    type:Boolean,
-    default:true
-},
+  loginHistory: {
+    type: Boolean,
+    default: true
+  },
 
+  // Notifications
+  emailNotification: {
+    type: Boolean,
+    default: true
+  },
 
-orderNotification:{
-    type:Boolean,
-    default:true
-},
+  orderNotification: {
+    type: Boolean,
+    default: true
+  },
 
+  supplierNotification: {
+    type: Boolean,
+    default: true
+  },
 
-emailNotification:{
-    type:Boolean,
-    default:true
-},
+  lowStockNotification: {
+    type: Boolean,
+    default: true
+  },
 
+  // Appearance
+  darkMode: {
+    type: Boolean,
+    default: false
+  }
 
-darkMode:{
-    type:Boolean,
-    default:false
-},
-
-
-
-createdAt:{
-    type:Date,
-    default:Date.now
-}
-
-
+}, {
+  timestamps: true
 });
 
-
-module.exports = mongoose.model("Setting",settingsSchema);
+module.exports = mongoose.model("Setting", settingSchema);
