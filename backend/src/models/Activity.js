@@ -1,40 +1,41 @@
 const mongoose = require("mongoose");
 
-
-const activitySchema = new mongoose.Schema({
-
-    type:{
-        type:String
+const activitySchema = new mongoose.Schema(
+  {
+    userId: {
+      type: String,
+      required: true,
+      index: true,
     },
 
-
-    title:{
-        type:String
+    type: {
+      type: String,
+      default: "",
     },
 
-
-    desc:{
-        type:String
+    title: {
+      type: String,
+      required: true,
     },
 
-
-    color:{
-        type:String
+    desc: {
+      type: String,
+      default: "",
     },
 
+    color: {
+      type: String,
+      default: "purple",
+    },
 
-    time:{
-        type:String
-    }
-
-
-},
-{
-    timestamps:true
-});
-
-
-module.exports = mongoose.model(
-    "Activity",
-    activitySchema
+    time: {
+      type: String,
+      default: "",
+    },
+  },
+  {
+    timestamps: true,
+  }
 );
+
+module.exports = mongoose.model("Activity", activitySchema);
