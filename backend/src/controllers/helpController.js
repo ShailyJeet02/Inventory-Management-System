@@ -10,25 +10,36 @@ const getHelp = async (req, res) => {
   try {
 
 
-    let help = await Help.findOne()
-      .populate(
-        "updatedBy",
-        "name email role"
-      );
+    let help = await Help.findOne({
+
+      userId: req.user._id
+
+    })
+    .populate(
+      "updatedBy",
+      "name email role"
+    );
 
 
-    // First Time Create Help Data
+
+    // First Time Create Help Data For User
 
     if (!help) {
 
 
       help = await Help.create({
 
+        userId: req.user._id,
+
+
         email: "support@inventorypro.com",
+
 
         phone: "+91 12345 67890",
 
+
         chatLink: "https://inventorypro.com/chat",
+
 
 
         faqs: [
@@ -98,6 +109,7 @@ const getHelp = async (req, res) => {
 
 
 
+
 // ========================================
 // UPDATE HELP DATA
 // ========================================
@@ -110,34 +122,51 @@ const updateHelp = async(req,res)=>{
 
     const help = await Help.findOneAndUpdate(
 
-      {},
-
 
       {
 
-        ...req.body,
-
-
-        updatedBy:req.user._id
+        userId:req.user._id
 
       },
 
 
       {
 
+
+        ...req.body,
+
+
+        userId:req.user._id,
+
+
+        updatedBy:req.user._id
+
+
+      },
+
+
+      {
+
+
         new:true,
+
 
         upsert:true,
 
+
         runValidators:true
+
 
       }
 
 
     )
     .populate(
+
       "updatedBy",
+
       "name email role"
+
     );
 
 
@@ -178,10 +207,14 @@ const updateHelp = async(req,res)=>{
 
 
 
+
 module.exports = {
+
 
   getHelp,
 
+
   updateHelp
+
 
 };

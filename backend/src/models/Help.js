@@ -28,6 +28,22 @@ const faqSchema = new mongoose.Schema({
 const helpSchema = new mongoose.Schema({
 
 
+  // ================================
+  // Owner User
+  // ================================
+
+  userId: {
+
+    type: mongoose.Schema.Types.ObjectId,
+
+    ref: "User",
+
+    required: true
+
+  },
+
+
+
   email: {
 
     type: String,
@@ -37,6 +53,7 @@ const helpSchema = new mongoose.Schema({
     default: "support@inventorypro.com"
 
   },
+
 
 
   phone: {
@@ -50,6 +67,7 @@ const helpSchema = new mongoose.Schema({
   },
 
 
+
   chatLink: {
 
     type: String,
@@ -57,6 +75,7 @@ const helpSchema = new mongoose.Schema({
     default: "https://inventorypro.com/chat"
 
   },
+
 
 
   faqs: {
@@ -99,8 +118,9 @@ const helpSchema = new mongoose.Schema({
   },
 
 
+
   // ================================
-  // Who Updated Help
+  // Last Updated User
   // ================================
 
   updatedBy: {
@@ -119,6 +139,7 @@ const helpSchema = new mongoose.Schema({
   timestamps: true
 
 });
+
 
 
 module.exports = mongoose.model("Help", helpSchema);
