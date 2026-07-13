@@ -6,21 +6,31 @@ dotenv.config();
 
 const connectDB = require("./config/db");
 
+// ===============================
 // Import Routes
+// ===============================
+
 const authRoutes = require("./routers/auth");
 const productRoutes = require("./routers/products");
 const orderRoutes = require("./routers/orders");
 const supplierRoutes = require("./routers/suppliers");
 const userRoutes = require("./routers/users");
 const settingsRoutes = require("./routers/settings");
-const reportRoutes = require("./routers/reports"); // ✅ Correct: routers/reports.js
+const reportRoutes = require("./routers/reports");
+const helpRoutes = require("./routers/help");
 
 const app = express();
 
+// ===============================
 // Database Connection
+// ===============================
+
 connectDB();
 
+// ===============================
 // Middleware
+// ===============================
+
 app.use(
   cors({
     origin: "http://localhost:5002",
@@ -30,40 +40,64 @@ app.use(
 
 app.use(express.json());
 
-// Test API
+// ===============================
+// Test Route
+// ===============================
+
 app.get("/", (req, res) => {
   res.status(200).json({
     message: "Inventory Backend Running"
   });
 });
 
-// Temporary test route - delete later
+// ===============================
+// Reports Test Route
+// (Delete Later)
+// ===============================
+
 app.get("/api/reports-test", (req, res) => {
   res.status(200).json({
-    message: "reports route working"
+    message: "Reports Route Working"
   });
 });
 
+// ===============================
 // API Routes
-app.use("/api/auth", authRoutes);
-app.use("/api/products", productRoutes);
-app.use("/api/orders", orderRoutes);
-app.use("/api/suppliers", supplierRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/settings", settingsRoutes);
-app.use("/api/reports", reportRoutes); // ✅ Correct
+// ===============================
 
-// 404 Handler - ye sabse last me hona chahiye
+app.use("/api/auth", authRoutes);
+
+app.use("/api/products", productRoutes);
+
+app.use("/api/orders", orderRoutes);
+
+app.use("/api/suppliers", supplierRoutes);
+
+app.use("/api/users", userRoutes);
+
+app.use("/api/settings", settingsRoutes);
+
+app.use("/api/reports", reportRoutes);
+
+app.use("/api/help", helpRoutes);
+
+// ===============================
+// 404 Handler
+// ===============================
+
 app.use((req, res) => {
   res.status(404).json({
-    message: "API route not found",
+    message: "API Route Not Found",
     route: req.originalUrl
   });
 });
 
-// Server
+// ===============================
+// Start Server
+// ===============================
+
 const PORT = process.env.PORT || 5001;
 
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+  console.log(`✅ Server running on port ${PORT}`);
 });
