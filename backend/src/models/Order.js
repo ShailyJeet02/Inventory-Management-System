@@ -27,16 +27,17 @@ const orderSchema = new mongoose.Schema(
       min: 0,
     },
 
-    status: {
-      type: String,
-      enum: [
-        "Pending",
-        "Paid",
-        "Shipped",
-        "Delivered",
-      ],
-      default: "Pending",
-    },
+   status: {
+  type: String,
+  enum: [
+    "Pending",
+    "Paid",
+    "Shipped",
+    "Delivered",
+    "Cancelled"
+  ],
+  default: "Pending"
+   },
 
     createdBy: {
       type: mongoose.Schema.Types.ObjectId,

@@ -4,7 +4,6 @@ const Activity = require("../models/Activity");
 // ==============================
 // CREATE ORDER
 // ==============================
-
 exports.createOrder = async (req, res) => {
   try {
     const {
@@ -19,34 +18,38 @@ exports.createOrder = async (req, res) => {
       orderType,
       customer,
       date,
-      amount,
-      status,
-      createdBy: req.user._id,
+      amount: Number(amount),
+      status: status || "Pending",
+      createdBy: req.user._id || req.user.id,
     });
 
     await Activity.create({
-      userId: req.user.id,
+      userId: req.user._id || req.user.id,
       type: "order",
       title: "New Order Created",
       desc: `${customer} placed an order worth ₹${amount}`,
       color: "green",
-      time: "Just now"
+      time: "Just now",
     });
 
-    res.status(201).json(order);
+    res.status(201).json({
+      success: true,
+      message: "Order created successfully",
+      order,
+    });
   } catch (error) {
-    console.log(error);
+    console.log("Create Order Error:", error);
 
     res.status(500).json({
+      success: false,
       message: error.message,
     });
   }
 };
 
 // ==============================
-// GET ORDERS
+// GET ALL ORDERS
 // ==============================
-
 exports.getOrders = async (req, res) => {
   try {
     const {
@@ -58,14 +61,16 @@ exports.getOrders = async (req, res) => {
     } = req.query;
 
     let filter = {
-      createdBy: req.user._id,
+      createdBy: req.user._id || req.user.id,
     };
 
-    if (status)
+    if (status) {
       filter.status = status;
+    }
 
-    if (orderType)
+    if (orderType) {
       filter.orderType = orderType;
+    }
 
     if (search) {
       filter.customer = {
@@ -85,11 +90,12 @@ exports.getOrders = async (req, res) => {
       createdAt: -1,
     });
 
-    res.json(orders);
+    res.status(200).json(orders);
   } catch (error) {
-    console.log(error);
+    console.log("Get Orders Error:", error);
 
     res.status(500).json({
+      success: false,
       message: error.message,
     });
   }
@@ -98,23 +104,26 @@ exports.getOrders = async (req, res) => {
 // ==============================
 // GET SINGLE ORDER
 // ==============================
-
 exports.getOrderById = async (req, res) => {
   try {
     const order = await Order.findOne({
       _id: req.params.id,
-      createdBy: req.user._id,
+      createdBy: req.user._id || req.user.id,
     });
 
     if (!order) {
       return res.status(404).json({
+        success: false,
         message: "Order not found",
       });
     }
 
-    res.json(order);
+    res.status(200).json(order);
   } catch (error) {
+    console.log("Get Order Error:", error);
+
     res.status(500).json({
+      success: false,
       message: error.message,
     });
   }
@@ -123,40 +132,52 @@ exports.getOrderById = async (req, res) => {
 // ==============================
 // UPDATE ORDER
 // ==============================
-
 exports.updateOrder = async (req, res) => {
   try {
     const order = await Order.findOneAndUpdate(
       {
         _id: req.params.id,
-        createdBy: req.user._id,
+        createdBy: req.user._id || req.user.id,
       },
-      req.body,
+      {
+        orderType: req.body.orderType,
+        customer: req.body.customer,
+        date: req.body.date,
+        amount: Number(req.body.amount),
+        status: req.body.status,
+      },
       {
         new: true,
+        runValidators: true,
       }
     );
 
     if (!order) {
       return res.status(404).json({
+        success: false,
         message: "Order not found",
       });
     }
 
     await Activity.create({
-      userId: req.user.id,
+      userId: req.user._id || req.user.id,
       type: "order",
       title: "Order Updated",
-      desc: `Order of ${order.customer} status updated`,
+      desc: `${order.customer}'s order updated (${order.status})`,
       color: "blue",
-      time: "Just now"
+      time: "Just now",
     });
 
-    res.json(order);
+    res.status(200).json({
+      success: true,
+      message: "Order updated successfully",
+      order,
+    });
   } catch (error) {
-    console.log(error);
+    console.log("Update Order Error:", error);
 
     res.status(500).json({
+      success: false,
       message: error.message,
     });
   }
@@ -165,36 +186,38 @@ exports.updateOrder = async (req, res) => {
 // ==============================
 // DELETE ORDER
 // ==============================
-
 exports.deleteOrder = async (req, res) => {
   try {
     const order = await Order.findOneAndDelete({
       _id: req.params.id,
-      createdBy: req.user._id,
+      createdBy: req.user._id || req.user.id,
     });
 
     if (!order) {
       return res.status(404).json({
+        success: false,
         message: "Order not found",
       });
     }
 
     await Activity.create({
-      userId: req.user.id,
+      userId: req.user._id || req.user.id,
       type: "order",
       title: "Order Deleted",
-      desc: `Order of ${order.customer} removed`,
-      color: "orange",
-      time: "Just now"
+      desc: `${order.customer}'s order deleted`,
+      color: "red",
+      time: "Just now",
     });
 
-    res.json({
+    res.status(200).json({
+      success: true,
       message: "Order deleted successfully",
     });
   } catch (error) {
-    console.log(error);
+    console.log("Delete Order Error:", error);
 
     res.status(500).json({
+      success: false,
       message: error.message,
     });
   }
