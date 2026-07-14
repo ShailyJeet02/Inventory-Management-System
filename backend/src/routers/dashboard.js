@@ -2,37 +2,13 @@ const express = require("express");
 
 const router = express.Router();
 
-const {
-    getStats,
-    getRevenueChart,
-    getActivity
-} = require("../controllers/dashboardController");
-
 const authMiddleware = require("../middleware/authMiddleware");
+const { getDashboard } = require("../controllers/dashboardController");
 
-
-// Dashboard stats
-router.get(
-    "/stats",
-    authMiddleware,
-    getStats
-);
-
-
-// Revenue chart
-router.get(
-    "/revenue-chart",
-    authMiddleware,
-    getRevenueChart
-);
-
-
-// Recent activity
-router.get(
-    "/activity",
-    authMiddleware,
-    getActivity
-);
-
+// =====================================
+// Dashboard (Single API)
+// GET /api/dashboard
+// =====================================
+router.get("/", authMiddleware, getDashboard);
 
 module.exports = router;

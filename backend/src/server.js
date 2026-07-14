@@ -18,6 +18,7 @@ const userRoutes = require("./routers/users");
 const settingsRoutes = require("./routers/settings");
 const reportRoutes = require("./routers/reports");
 const helpRoutes = require("./routers/help");
+const dashboardRoutes = require("./routers/dashboard");
 
 const app = express();
 
@@ -80,6 +81,8 @@ app.use("/api/settings", settingsRoutes);
 app.use("/api/reports", reportRoutes);
 
 app.use("/api/help", helpRoutes);
+
+app.use("/api/dashboard", dashboardRoutes);
 
 // ===============================
 // 404 Handler
