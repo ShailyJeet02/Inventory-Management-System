@@ -10,17 +10,25 @@ const activitySchema = new mongoose.Schema(
 
     type: {
       type: String,
-      default: "",
+      enum: [
+        "product",
+        "order",
+        "supplier",
+        "user"
+      ],
+      default: "order",
     },
 
     title: {
       type: String,
       required: true,
+      trim: true,
     },
 
     desc: {
       type: String,
       default: "",
+      trim: true,
     },
 
     color: {
@@ -30,7 +38,7 @@ const activitySchema = new mongoose.Schema(
 
     time: {
       type: String,
-      default: "",
+      default: "Just now",
     },
   },
   {

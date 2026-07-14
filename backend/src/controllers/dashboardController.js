@@ -15,9 +15,10 @@ const getDashboard = async (req, res) => {
       totalUsers,
       sales,
       orders,
-      completed,
       pending,
-      cancelled,
+      paid,
+      shipped,
+      delivered,
       activityDocs,
     ] = await Promise.all([
       Product.countDocuments({
@@ -54,27 +55,32 @@ const getDashboard = async (req, res) => {
 
       Order.countDocuments({
         createdBy: userId,
-        status: "Completed",
-      }),
-
-      Order.countDocuments({
-        createdBy: userId,
         status: "Pending",
       }),
 
       Order.countDocuments({
         createdBy: userId,
-        status: "Cancelled",
+        status: "Paid",
+      }),
+
+      Order.countDocuments({
+        createdBy: userId,
+        status: "Shipped",
+      }),
+
+      Order.countDocuments({
+        createdBy: userId,
+        status: "Delivered",
       }),
 
       Activity.find({
         userId: userId.toString(),
       })
-        .sort({ createdAt: -1 })
-        .limit(5),
+       .sort({ createdAt: -1 })
+       .limit(5),
     ]);
 
-    const totalSales = sales.length ? sales[0].total : 0;
+    const totalSales = sales.length? sales[0].total : 0;
 
     // Revenue Chart
     const months = [
@@ -111,36 +117,45 @@ const getDashboard = async (req, res) => {
 
     const orderStatus = [
       {
-        name: "Completed",
-        value: completed,
-      },
-      {
         name: "Pending",
         value: pending,
       },
       {
-        name: "Cancelled",
-        value: cancelled,
+        name: "Paid",
+        value: paid,
+      },
+      {
+        name: "Shipped",
+        value: shipped,
+      },
+      {
+        name: "Delivered",
+        value: delivered,
       },
     ];
 
-    const total = completed + pending + cancelled || 1;
+    const total = pending + paid + shipped + delivered || 1;
 
     const orderSummary = [
       {
-        title: "Completed Orders",
-        value: Math.round((completed * 100) / total),
-        color: "bg-emerald-500",
-      },
-      {
         title: "Pending Orders",
         value: Math.round((pending * 100) / total),
-        color: "bg-amber-500",
+        color: "bg-yellow-500",
       },
       {
-        title: "Cancelled Orders",
-        value: Math.round((cancelled * 100) / total),
-        color: "bg-red-500",
+        title: "Paid Orders",
+        value: Math.round((paid * 100) / total),
+        color: "bg-blue-500",
+      },
+      {
+        title: "Shipped Orders",
+        value: Math.round((shipped * 100) / total),
+        color: "bg-purple-500",
+      },
+      {
+        title: "Delivered Orders",
+        value: Math.round((delivered * 100) / total),
+        color: "bg-emerald-500",
       },
     ];
 
@@ -153,31 +168,31 @@ const getDashboard = async (req, res) => {
 
     res.status(200).json({
       stats: [
-  {
-    title: "Total Sales",
-    value: totalSales,
-    change: "+0%",
-    icon: "FiDollarSign",
-  },
-  {
-    title: "Total Orders",
-    value: totalOrders,
-    change: "+0%",
-    icon: "FiShoppingCart",
-  },
-  {
-    title: "Products",
-    value: totalProducts,
-    change: "+0%",
-    icon: "FiPackage",
-  },
-  {
-    title: "Users",
-    value: totalUsers,
-    change: "+0%",
-    icon: "FiUsers",
-  },
-],
+        {
+          title: "Total Sales",
+          value: totalSales,
+          change: "+0%",
+          icon: "FiDollarSign",
+        },
+        {
+          title: "Total Orders",
+          value: totalOrders,
+          change: "+0%",
+          icon: "FiShoppingCart",
+        },
+        {
+          title: "Products",
+          value: totalProducts,
+          change: "+0%",
+          icon: "FiPackage",
+        },
+        {
+          title: "Users",
+          value: totalUsers,
+          change: "+0%",
+          icon: "FiUsers",
+        },
+      ],
 
       revenueData,
       orderStatus,

@@ -1,354 +1,201 @@
 const Order = require("../models/Order");
 const Activity = require("../models/Activity");
 
-
-
-// =========================
+// ==============================
 // CREATE ORDER
-// =========================
+// ==============================
+
 exports.createOrder = async (req, res) => {
+  try {
+    const {
+      orderType,
+      customer,
+      date,
+      amount,
+      status,
+    } = req.body;
 
-    try {
+    const order = await Order.create({
+      orderType,
+      customer,
+      date,
+      amount,
+      status,
+      createdBy: req.user._id,
+    });
 
-        const {
-            orderType,
-            customer,
-            date,
-            amount,
-            status
-        } = req.body;
+    await Activity.create({
+      userId: req.user.id,
+      type: "order",
+      title: "New Order Created",
+      desc: `${customer} placed an order worth ₹${amount}`,
+      color: "green",
+      time: "Just now"
+    });
 
+    res.status(201).json(order);
+  } catch (error) {
+    console.log(error);
 
-
-        const order = await Order.create({
-
-            orderType,
-
-            customer,
-
-            date,
-
-            amount,
-
-            status,
-
-
-            // logged in user
-            createdBy: req.user.id
-
-        });
-
-
-
-        // Create Dashboard Activity
-
-        await Activity.create({
-
-            type: "order",
-
-            title: "New Order Created",
-
-            desc: `${customer} placed an order worth ₹${amount}`,
-
-            color: "green",
-
-            time: "Just now"
-
-        });
-
-
-
-        console.log("ORDER SAVED:", order);
-
-
-
-        res.status(201).json({
-
-            message: "Order created successfully",
-
-            order
-
-        });
-
-
-
-    } catch (error) {
-
-
-        console.log("Create Order Error:", error);
-
-
-        res.status(500).json({
-
-            message: error.message
-
-        });
-
-
-    }
-
+    res.status(500).json({
+      message: error.message,
+    });
+  }
 };
 
+// ==============================
+// GET ORDERS
+// ==============================
 
-
-
-
-
-
-
-// =========================
-// GET ALL ORDERS
-// =========================
 exports.getOrders = async (req, res) => {
+  try {
+    const {
+      status,
+      startDate,
+      endDate,
+      orderType,
+      search,
+    } = req.query;
 
-    try {
+    let filter = {
+      createdBy: req.user._id,
+    };
 
+    if (status)
+      filter.status = status;
 
-        const orders = await Order.find()
+    if (orderType)
+      filter.orderType = orderType;
 
-            .sort({
-
-                createdAt: -1
-
-            });
-
-
-
-        console.log("ORDERS FETCHED:", orders.length);
-
-
-
-        res.json(orders);
-
-
-
-    } catch (error) {
-
-
-        console.log("Get Orders Error:", error);
-
-
-
-        res.status(500).json({
-
-            message: error.message
-
-        });
-
-
+    if (search) {
+      filter.customer = {
+        $regex: search,
+        $options: "i",
+      };
     }
 
+    if (startDate && endDate) {
+      filter.date = {
+        $gte: new Date(startDate),
+        $lte: new Date(endDate),
+      };
+    }
+
+    const orders = await Order.find(filter).sort({
+      createdAt: -1,
+    });
+
+    res.json(orders);
+  } catch (error) {
+    console.log(error);
+
+    res.status(500).json({
+      message: error.message,
+    });
+  }
 };
 
-
-
-
-
-
-
-
-// =========================
+// ==============================
 // GET SINGLE ORDER
-// =========================
+// ==============================
+
 exports.getOrderById = async (req, res) => {
+  try {
+    const order = await Order.findOne({
+      _id: req.params.id,
+      createdBy: req.user._id,
+    });
 
-    try {
-
-
-        const order = await Order.findById(req.params.id);
-
-
-
-        if (!order) {
-
-            return res.status(404).json({
-
-                message: "Order not found"
-
-            });
-
-        }
-
-
-
-        res.json(order);
-
-
-
-    } catch (error) {
-
-
-        res.status(500).json({
-
-            message: error.message
-
-        });
-
-
+    if (!order) {
+      return res.status(404).json({
+        message: "Order not found",
+      });
     }
 
+    res.json(order);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
 };
 
-
-
-
-
-
-
-
-// =========================
+// ==============================
 // UPDATE ORDER
-// =========================
+// ==============================
+
 exports.updateOrder = async (req, res) => {
+  try {
+    const order = await Order.findOneAndUpdate(
+      {
+        _id: req.params.id,
+        createdBy: req.user._id,
+      },
+      req.body,
+      {
+        new: true,
+      }
+    );
 
-    try {
-
-
-        const order = await Order.findByIdAndUpdate(
-
-            req.params.id,
-
-            req.body,
-
-            {
-                new: true
-            }
-
-        );
-
-
-
-        if (!order) {
-
-            return res.status(404).json({
-
-                message: "Order not found"
-
-            });
-
-        }
-
-
-
-        // Activity after update
-
-        await Activity.create({
-
-            type:"order",
-
-            title:"Order Updated",
-
-            desc:`Order of ${order.customer} status updated`,
-
-            color:"blue",
-
-            time:"Just now"
-
-        });
-
-
-
-        res.json({
-
-            message: "Order updated successfully",
-
-            order
-
-        });
-
-
-
-    } catch (error) {
-
-
-        console.log("Update Order Error:", error);
-
-
-        res.status(500).json({
-
-            message: error.message
-
-        });
-
-
+    if (!order) {
+      return res.status(404).json({
+        message: "Order not found",
+      });
     }
 
+    await Activity.create({
+      userId: req.user.id,
+      type: "order",
+      title: "Order Updated",
+      desc: `Order of ${order.customer} status updated`,
+      color: "blue",
+      time: "Just now"
+    });
+
+    res.json(order);
+  } catch (error) {
+    console.log(error);
+
+    res.status(500).json({
+      message: error.message,
+    });
+  }
 };
 
-
-
-
-
-
-
-
-// =========================
+// ==============================
 // DELETE ORDER
-// =========================
+// ==============================
+
 exports.deleteOrder = async (req, res) => {
+  try {
+    const order = await Order.findOneAndDelete({
+      _id: req.params.id,
+      createdBy: req.user._id,
+    });
 
-    try {
-
-
-        const order = await Order.findByIdAndDelete(
-
-            req.params.id
-
-        );
-
-
-
-        if (!order) {
-
-            return res.status(404).json({
-
-                message: "Order not found"
-
-            });
-
-        }
-
-
-
-        // Activity after delete
-
-        await Activity.create({
-
-            type:"order",
-
-            title:"Order Deleted",
-
-            desc:`Order of ${order.customer} removed`,
-
-            color:"orange",
-
-            time:"Just now"
-
-        });
-
-
-
-        res.json({
-
-            message: "Order deleted successfully"
-
-        });
-
-
-
-    } catch (error) {
-
-
-        console.log("Delete Order Error:", error);
-
-
-        res.status(500).json({
-
-            message: error.message
-
-        });
-
-
+    if (!order) {
+      return res.status(404).json({
+        message: "Order not found",
+      });
     }
 
+    await Activity.create({
+      userId: req.user.id,
+      type: "order",
+      title: "Order Deleted",
+      desc: `Order of ${order.customer} removed`,
+      color: "orange",
+      time: "Just now"
+    });
+
+    res.json({
+      message: "Order deleted successfully",
+    });
+  } catch (error) {
+    console.log(error);
+
+    res.status(500).json({
+      message: error.message,
+    });
+  }
 };

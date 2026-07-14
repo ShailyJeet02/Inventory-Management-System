@@ -14,7 +14,6 @@ const orderSchema = new mongoose.Schema(
       trim: true,
     },
 
-    // Date should be Date type for Dashboard & Reports
     date: {
       type: Date,
       required: true,
@@ -30,7 +29,12 @@ const orderSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["Completed", "Pending", "Cancelled"],
+      enum: [
+        "Pending",
+        "Paid",
+        "Shipped",
+        "Delivered",
+      ],
       default: "Pending",
     },
 
