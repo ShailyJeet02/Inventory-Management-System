@@ -3,13 +3,18 @@ const mongoose = require('mongoose');
 const productSchema = new mongoose.Schema({
   name: { 
     type: String, 
-    required: true 
+    required: true,
+    trim: true
   },
   category: { 
     type: String, 
-    required: true 
+    required: true,
+    trim: true
   },
-  description: String,
+  description: {
+    type: String,
+    trim: true
+  },
   quantity: { 
     type: Number, 
     required: true,
@@ -22,12 +27,18 @@ const productSchema = new mongoose.Schema({
   },
   supplier: { 
     type: String, 
-    default: '' 
+    default: '',
+    trim: true
   },
   userId: { 
-    type: String, 
-    required: true 
+    type: String,  // Wapas String kar diya
+    required: true,
+    index: true
   }
-}, { timestamps: true });
+}, { 
+  timestamps: true 
+});
+
+productSchema.index({ userId: 1, name: 1 });
 
 module.exports = mongoose.model('Product', productSchema);

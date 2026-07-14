@@ -1,47 +1,49 @@
 const mongoose = require("mongoose");
 
-
-const orderSchema = new mongoose.Schema({
-
+const orderSchema = new mongoose.Schema(
+  {
     orderType: {
-        type: String,
-        enum: ["sales", "purchase"],
-        required: true
+      type: String,
+      enum: ["sales", "purchase"],
+      required: true,
     },
 
     customer: {
-        type: String,
-        required: true
+      type: String,
+      required: true,
+      trim: true,
     },
 
+    // Date should be Date type for Dashboard & Reports
     date: {
-        type: String,
-        required: true
+      type: Date,
+      required: true,
+      default: Date.now,
+      index: true,
     },
 
     amount: {
-        type: Number,
-        required: true
+      type: Number,
+      required: true,
+      min: 0,
     },
 
     status: {
-        type: String,
-        default: "Pending"
+      type: String,
+      enum: ["Completed", "Pending", "Cancelled"],
+      default: "Pending",
     },
 
-
     createdBy: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User"
-    }
-
-
-}, {
-    timestamps: true
-});
-
-
-module.exports = mongoose.model(
-    "Order",
-    orderSchema
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
+  },
+  {
+    timestamps: true,
+  }
 );
+
+module.exports = mongoose.model("Order", orderSchema);
